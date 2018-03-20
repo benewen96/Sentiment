@@ -1,0 +1,15 @@
+{
+  "extends": "airbnb",
+  "env": {
+    "browser": true,
+    "node": true,
+    "jquery": true
+  },
+  "rules": {
+    "prefer-destructuring": ["error", {"object": false, "array": false}],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
+    "no-underscore-dangle" : 0,
+    "no-param-reassign" : 0,
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+  }
+}
