@@ -26,6 +26,7 @@ print('Reading corpus...')
 
 reviews = YelpLabeledLineSentence(os.path.join(dirname, '../data/review.json'))
 train_sentences = reviews.get_bad()+reviews.get_good()
+print(train_sentences[1])
 end = time.clock()
 print('Done, time elapsed: {}'.format(end-start))
 
@@ -40,6 +41,6 @@ model.build_vocab(train_sentences)
 model.train(reviews.random_train(), total_examples=model.corpus_count, epochs=model.iter)
 
 # save model for future use
-model.save(os.path.join(dirname,'models/yelp_model_newest.d2v'))
+model.save(os.path.join(dirname,'models/yelp_model_newest_1.d2v'))
 end = time.clock()
 print('Done, time elapsed: {}'.format(end-start))
