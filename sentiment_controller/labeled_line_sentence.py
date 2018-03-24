@@ -8,7 +8,6 @@ from random import shuffle
 # define our LabeledLineSentence class that we can use to feed into our Doc2Vec model
 class LabeledLineSentence(object):
     def __init__(self, sources):
-        print(sources)
         self.sources = sources
 
         flipped = {}
