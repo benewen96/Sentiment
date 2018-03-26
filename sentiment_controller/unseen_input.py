@@ -22,7 +22,7 @@ print("Search driver starting...")
 dirname = os.path.dirname(__file__)
 
 # load our doc2vec model that we trained
-model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model_newest.d2v'))
+model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model.d2v'))
 
 # create an array of LabeledLineSentences for previously unseen
 # good and bad reviews
@@ -32,11 +32,11 @@ model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model_newest.d2v'))
 print("Loading data...")
 
 # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
-train_arrays = numpy.zeros((100000, 300))
-train_labels = numpy.zeros(100000)
+train_arrays = numpy.zeros((60000, 10))
+train_labels = numpy.zeros(60000)
 
 # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
-for i in range(50000):
+for i in range(30000):
     prefix_train_pos = 'bad_' + str(i)
     prefix_train_neg = 'good_' + str(i)
 
@@ -46,8 +46,8 @@ for i in range(50000):
     train_arrays[i] = pos_review
     train_labels[i] = 1
 
-    train_arrays[50000 + i] = neg_review
-    train_labels[50000 + i] = 0
+    train_arrays[30000 + i] = neg_review
+    train_labels[30000 + i] = 0
 
 
 # create a logistic regression classifier

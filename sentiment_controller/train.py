@@ -1,6 +1,7 @@
 # ARGS
 # 1: number of reviews to train
 # 2: number of iterations
+# 3: size of vector
 
 # gensim modules
 from gensim import utils
@@ -38,7 +39,7 @@ print('Done, time elapsed: {}'.format(end-start))
 start = time.clock()
 print('Training model...')
 
-model = Doc2Vec(min_count=1, window=10, size=300, sample=1e-4, negative=5, iter=int(sys.argv[2]), workers=4)
+model = Doc2Vec(min_count=1, window=10, size=int(sys.argv[3]), sample=1e-4, negative=5, iter=int(sys.argv[2]), workers=4)
 # build our model vocabulary from our sentences
 model.build_vocab(reviews)
 

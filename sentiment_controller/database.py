@@ -27,13 +27,13 @@ reviews_file = os.path.join(dirname, '../data/review.json')
 
 
 # load our doc2vec model that we trained
-model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model_newest.d2v'))
+model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model.d2v'))
 # create a logistic regression classifier
 classifier = LogisticRegression()
 #classifier = SGDClassifier(loss='log', penalty='l1')
 
-train_arrays = numpy.zeros((100000, 300))
-train_labels = numpy.zeros(100000)
+train_arrays = numpy.zeros((60000, 10))
+train_labels = numpy.zeros(60000)
 
 db = client.sentiment
 reviews = db.reviews
@@ -41,7 +41,7 @@ reviews = db.reviews
 def insertSource(source):
     with utils.smart_open(source) as fin:
         for item_no, line in enumerate(fin):
-            if(item_no >= 100000):
+            if(item_no >= 60000):
                 break
             # our yelp reviews are in json, so we need to parse the text out
             parsed_line = json.loads(line)
@@ -62,12 +62,15 @@ def insertSource(source):
             reviews.insert_one(parsed_line)
 
 def insertBusinessData(source):
-    with utils.smart_open(source) as fin:
-        for item_no, line in enumerate(fin):
-            # our yelp reviews are in json, so we need to parse the text out
-            parsed_line = json.loads(line)
-            db.businesses.insert_one(parsed_line)
-    print("Business data inserted")
+    if db.businesses.count() == 0:
+        with utils.smart_open(source) as fin:
+            for item_no, line in enumerate(fin):
+                # our yelp reviews are in json, so we need to parse the text out
+                parsed_line = json.loads(line)
+                db.businesses.insert_one(parsed_line)
+        print("Business data inserted")
+    else:
+        print("Business data already exists")
 
 
 def loadData() :
@@ -78,7 +81,7 @@ def loadData() :
 
 def loadModel() :
     # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
-    for i in range(50000):
+    for i in range(30000):
         prefix_train_pos = 'bad_' + str(i)
         prefix_train_neg = 'good_' + str(i)
 
@@ -88,8 +91,8 @@ def loadModel() :
         train_arrays[i] = pos_review
         train_labels[i] = 1
 
-        train_arrays[50000 + i] = neg_review
-        train_labels[50000 + i] = 0
+        train_arrays[30000 + i] = neg_review
+        train_labels[30000 + i] = 0
 
     classifier.fit(train_arrays, train_labels)
     print("Loaded model!")

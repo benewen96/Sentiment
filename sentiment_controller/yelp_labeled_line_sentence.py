@@ -53,7 +53,7 @@ class YelpLabeledLineSentence(object):
                     if(review_rating <= 2):
                         label = 'bad_%s' % bad_count
                         bad_count = bad_count + 1
-                        yield LabeledSentence(utils.to_unicode(review).split(), [label, review_id])
+                        yield LabeledSentence(utils.to_unicode(review).split(), [label, review_id, review_rating])
         elif(self.mode == 'good'):
             with utils.smart_open(self.source) as fin:
                 for item_no, line in enumerate(fin):
@@ -69,7 +69,7 @@ class YelpLabeledLineSentence(object):
                     if(review_rating >= 4):
                         label = 'good_%s' % good_count
                         good_count = good_count + 1
-                        yield LabeledSentence(utils.to_unicode(review).split(), [label, review_id])
+                        yield LabeledSentence(utils.to_unicode(review).split(), [label, review_id, review_rating])
 
 
     def to_array(self):

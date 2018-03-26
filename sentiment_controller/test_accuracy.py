@@ -1,6 +1,7 @@
 # ARGS:
 # 1: total train reviews
 # 2: number of iterations (for csv output)
+# 3: size of vector
 
 # gensim modules
 from gensim import utils
@@ -41,7 +42,7 @@ with open('result.csv', 'a') as f:
     bad = YelpLabeledLineSentence(os.path.join(dirname, 'tests/good-bad/review_test_1_star.json'), 'bad', 6254)
 
     # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
-    train_arrays = numpy.zeros((int(sys.argv[1]), 300))
+    train_arrays = numpy.zeros((int(sys.argv[1]), int(sys.argv[3])))
     train_labels = numpy.zeros(int(sys.argv[1]))
 
     # create a logistic regression classifier
@@ -67,26 +68,51 @@ with open('result.csv', 'a') as f:
     # take our test reviews from the model, and put them in array, good reviews first, bad reviews second half of array
     # for each review, we'll infer the review's vector against our model
 
-    test_arrays = numpy.zeros((12508, 300))
+    test_arrays = numpy.zeros((12508, int(sys.argv[3])))
+    test_ratings = numpy.zeros(12508)
+
     test_labels = numpy.zeros(12508)
+
+    good_correct = 0
+    good_total = 0
+    bad_correct = 0
+    bad_total = 0
 
     for i, review in enumerate(good):
         test_arrays[i] = model.infer_vector(review[0])
         test_labels[i] = 1
+        test_ratings[i] = review[1][2]
+
+        prediction = classifier.predict([test_arrays[i]])
+        if prediction == 1:
+            good_correct += 1
+        good_total +=1
 
     for i, review in enumerate(bad):
         test_arrays[i + 6254] = model.infer_vector(review[0])
         test_labels[i + 6254] = 0
+        test_ratings[i + 6254] = review[1][2]
+
+        prediction = classifier.predict([test_arrays[6254 + i]])
+        if prediction == 0:
+            bad_correct += 1
+        bad_total += 1
 
     # print the accuracy of our classifier
     accuracy=classifier.score(test_arrays, test_labels) * 100
     print("Classifier reports a {}% accuracy".format(accuracy))
 
-    tsne = TSNE(n_components=2)
-    train_arrays_tsne = tsne.fit_transform(train_arrays)
-    plt.scatter(train_arrays_tsne[:, 0], train_labels,color='g')
-    plt.show()
+    # check good accuracy
+    print("Out of {} good reviews, {} were correctly predicted".format(good_total,good_correct))
 
+    # check bad accuracy
+    print("Out of {} bad reviews, {} were correctly predicted".format(bad_total,bad_correct))
+
+    print(test_arrays[0])
+
+    tsne = TSNE(n_components=2)
+    test_arrays_tsne = tsne.fit_transform(test_arrays)
+    print(test_arrays_tsne)
 
     writer = csv.writer(f)
-    writer.writerow([int(sys.argv[1]),int(sys.argv[2]),accuracy])
+    writer.writerow([int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),accuracy])
