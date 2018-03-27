@@ -39,8 +39,8 @@ with open('result.csv', 'a') as f:
     # good and bad reviews
     # this does some basic formatting of the text as well to make it more
     # digestible by gensim and sklearn
-    good = YelpLabeledLineSentence(os.path.join(dirname, '../data/test_10000.json'), 'good', 500)
-    bad = YelpLabeledLineSentence(os.path.join(dirname, '../data/test_10000.json'), 'bad', 500)
+    good = YelpLabeledLineSentence(os.path.join(dirname, '../data/test_10000.json'), 'good', 1000)
+    bad = YelpLabeledLineSentence(os.path.join(dirname, '../data/test_10000.json'), 'bad', 1000)
 
     # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
     train_arrays = numpy.zeros((int(sys.argv[1]), int(sys.argv[3])))
@@ -69,13 +69,13 @@ with open('result.csv', 'a') as f:
     # take our test reviews from the model, and put them in array, good reviews first, bad reviews second half of array
     # for each review, we'll infer the review's vector against our model
 
-    test_arrays_good = numpy.zeros((500, int(sys.argv[3])))
-    test_ratings_good = numpy.zeros(500)
-    test_labels_good = numpy.zeros(500)
+    test_arrays_good = numpy.zeros((1000, int(sys.argv[3])))
+    test_ratings_good = numpy.zeros(1000)
+    test_labels_good = numpy.zeros(1000)
 
-    test_arrays_bad = numpy.zeros((500, int(sys.argv[3])))
-    test_ratings_bad = numpy.zeros(500)
-    test_labels_bad = numpy.zeros(500)
+    test_arrays_bad = numpy.zeros((1000, int(sys.argv[3])))
+    test_ratings_bad = numpy.zeros(1000)
+    test_labels_bad = numpy.zeros(1000)
 
     good_correct = 0
     good_total = 0
@@ -99,16 +99,42 @@ with open('result.csv', 'a') as f:
     accuracy=classifier.score(test_arrays_bad, test_labels_bad) * 100
     print("Classifier reports a {}% accuracy for bad reviews".format(accuracy))
 
+    # for dim in range(1, int(sys.argv[3])):
+    #     # plot probability of review being good vs feature vector value
+    #     plt.scatter(test_arrays_good[:,dim], classifier.predict_proba(test_arrays_good)[:,1], color='green')
+    #     plt.scatter(test_arrays_bad[:,dim], classifier.predict_proba(test_arrays_bad)[:,1], color='red')
+    #
+    #     plt.ylabel('Probability of Review Being Good')
+    #     plt.xlabel('dim={}'.format(dim))
+    #     plt.show()
+
+    # reduce the n-dimensional feature vector to n=1 using t-SNE
     tsne = TSNE(n_components=1)
     test_arrays_tsne_good = tsne.fit_transform(test_arrays_good)
     test_arrays_tsne_bad = tsne.fit_transform(test_arrays_bad)
 
+    print(test_arrays_tsne_bad[0])
+
+    # plot probability of review being good vs feature vector value
     plt.scatter(test_arrays_tsne_good, classifier.predict_proba(test_arrays_good)[:,1], color='green')
     plt.scatter(test_arrays_tsne_bad, classifier.predict_proba(test_arrays_bad)[:,1], color='red')
 
-    plt.ylabel('Probablity of Sentiment (Bad/Good)')
+    plt.ylabel('Probability of Review Being Good')
     plt.xlabel('t-SNE reduced feature vector (dim=1)')
     plt.show()
+
+    # # reduce the n-dimensional feature vector to n=1 using t-SNE
+    # tsne = TSNE(n_components=2)
+    # test_arrays_tsne_good = tsne.fit_transform(test_arrays_good)
+    # test_arrays_tsne_bad = tsne.fit_transform(test_arrays_bad)
+    #
+    # # plot feature vectors against each other
+    # plt.scatter(test_arrays_tsne_good[:,0], test_arrays_tsne_good[:,1], color='green')
+    # plt.scatter(test_arrays_tsne_bad[:,0], test_arrays_tsne_bad[:,1], color='red')
+    #
+    # plt.ylabel('x1')
+    # plt.xlabel('x2')
+    # plt.show()
 
     writer = csv.writer(f)
     writer.writerow([int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),accuracy])
