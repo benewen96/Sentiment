@@ -9,6 +9,7 @@ from gensim.models.doc2vec import LabeledSentence
 from gensim.models import Doc2Vec
 from matplotlib import pyplot as plt
 from sklearn.manifold import TSNE
+from sklearn.feature_extraction.text import CountVectorizer
 
 # numpy
 import numpy
@@ -38,8 +39,8 @@ with open('result.csv', 'a') as f:
     # good and bad reviews
     # this does some basic formatting of the text as well to make it more
     # digestible by gensim and sklearn
-    good = YelpLabeledLineSentence(os.path.join(dirname, 'tests/good-bad/review_test_5_star.json'), 'good', 6254)
-    bad = YelpLabeledLineSentence(os.path.join(dirname, 'tests/good-bad/review_test_1_star.json'), 'bad', 6254)
+    good = YelpLabeledLineSentence(os.path.join(dirname, '../data/test_10000.json'), 'good', 500)
+    bad = YelpLabeledLineSentence(os.path.join(dirname, '../data/test_10000.json'), 'bad', 500)
 
     # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
     train_arrays = numpy.zeros((int(sys.argv[1]), int(sys.argv[3])))
@@ -68,10 +69,13 @@ with open('result.csv', 'a') as f:
     # take our test reviews from the model, and put them in array, good reviews first, bad reviews second half of array
     # for each review, we'll infer the review's vector against our model
 
-    test_arrays = numpy.zeros((12508, int(sys.argv[3])))
-    test_ratings = numpy.zeros(12508)
+    test_arrays_good = numpy.zeros((500, int(sys.argv[3])))
+    test_ratings_good = numpy.zeros(500)
+    test_labels_good = numpy.zeros(500)
 
-    test_labels = numpy.zeros(12508)
+    test_arrays_bad = numpy.zeros((500, int(sys.argv[3])))
+    test_ratings_bad = numpy.zeros(500)
+    test_labels_bad = numpy.zeros(500)
 
     good_correct = 0
     good_total = 0
@@ -79,40 +83,32 @@ with open('result.csv', 'a') as f:
     bad_total = 0
 
     for i, review in enumerate(good):
-        test_arrays[i] = model.infer_vector(review[0])
-        test_labels[i] = 1
-        test_ratings[i] = review[1][2]
-
-        prediction = classifier.predict([test_arrays[i]])
-        if prediction == 1:
-            good_correct += 1
-        good_total +=1
+        test_arrays_good[i] = model.infer_vector(review[0])
+        test_labels_good[i] = 1
+        test_ratings_good[i] = review[1][2]
 
     for i, review in enumerate(bad):
-        test_arrays[i + 6254] = model.infer_vector(review[0])
-        test_labels[i + 6254] = 0
-        test_ratings[i + 6254] = review[1][2]
-
-        prediction = classifier.predict([test_arrays[6254 + i]])
-        if prediction == 0:
-            bad_correct += 1
-        bad_total += 1
+        test_arrays_bad[i] = model.infer_vector(review[0])
+        test_labels_bad[i] = 0
+        test_ratings_bad[i] = review[1][2]
 
     # print the accuracy of our classifier
-    accuracy=classifier.score(test_arrays, test_labels) * 100
-    print("Classifier reports a {}% accuracy".format(accuracy))
+    accuracy=classifier.score(test_arrays_good, test_labels_good) * 100
+    print("Classifier reports a {}% accuracy for good reviews".format(accuracy))
 
-    # check good accuracy
-    print("Out of {} good reviews, {} were correctly predicted".format(good_total,good_correct))
+    accuracy=classifier.score(test_arrays_bad, test_labels_bad) * 100
+    print("Classifier reports a {}% accuracy for bad reviews".format(accuracy))
 
-    # check bad accuracy
-    print("Out of {} bad reviews, {} were correctly predicted".format(bad_total,bad_correct))
+    tsne = TSNE(n_components=1)
+    test_arrays_tsne_good = tsne.fit_transform(test_arrays_good)
+    test_arrays_tsne_bad = tsne.fit_transform(test_arrays_bad)
 
-    print(test_arrays[0])
+    plt.scatter(test_arrays_tsne_good, classifier.predict_proba(test_arrays_good)[:,1], color='green')
+    plt.scatter(test_arrays_tsne_bad, classifier.predict_proba(test_arrays_bad)[:,1], color='red')
 
-    tsne = TSNE(n_components=2)
-    test_arrays_tsne = tsne.fit_transform(test_arrays)
-    print(test_arrays_tsne)
+    plt.ylabel('Probablity of Sentiment (Bad/Good)')
+    plt.xlabel('t-SNE reduced feature vector (dim=1)')
+    plt.show()
 
     writer = csv.writer(f)
     writer.writerow([int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),accuracy])

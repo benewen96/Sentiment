@@ -70,6 +70,22 @@ class YelpLabeledLineSentence(object):
                         label = 'good_%s' % good_count
                         good_count = good_count + 1
                         yield LabeledSentence(utils.to_unicode(review).split(), [label, review_id, review_rating])
+        else:
+            count = 0
+            with utils.smart_open(self.source) as fin:
+                for item_no, line in enumerate(fin):
+                    if(count >= self.total):
+                        print('{} good reviews, {} bad reviews.'.format(good_count, bad_count))
+                        return
+                    # our yelp reviews are in json, so we need to parse the text out
+                    parsed_line = json.loads(line)
+                    review = parsed_line['text']
+                    review_id = parsed_line['review_id']
+                    review_rating = parsed_line['stars']
+
+                    label = ''
+                    count = count + 1
+                    yield LabeledSentence(utils.to_unicode(review).split(), [label, review_id, review_rating])
 
 
     def to_array(self):
