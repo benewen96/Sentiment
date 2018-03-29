@@ -2,6 +2,7 @@
 # 1: total train reviews
 # 2: number of iterations (for csv output)
 # 3: size of vector
+# 4: good/bad sizes
 
 # gensim modules
 from gensim import utils
@@ -39,8 +40,8 @@ with open('result.csv', 'a') as f:
     # good and bad reviews
     # this does some basic formatting of the text as well to make it more
     # digestible by gensim and sklearn
-    good = YelpLabeledLineSentence(os.path.join(dirname, '../data/test_10000.json'), 'good', 1000)
-    bad = YelpLabeledLineSentence(os.path.join(dirname, '../data/test_10000.json'), 'bad', 1000)
+    good = YelpLabeledLineSentence(os.path.join(dirname, '../data/review.json'), 'good', int(sys.argv[4]))
+    bad = YelpLabeledLineSentence(os.path.join(dirname, '../data/review.json'), 'bad', int(sys.argv[4]))
 
     # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
     train_arrays = numpy.zeros((int(sys.argv[1]), int(sys.argv[3])))
@@ -69,13 +70,13 @@ with open('result.csv', 'a') as f:
     # take our test reviews from the model, and put them in array, good reviews first, bad reviews second half of array
     # for each review, we'll infer the review's vector against our model
 
-    test_arrays_good = numpy.zeros((1000, int(sys.argv[3])))
-    test_ratings_good = numpy.zeros(1000)
-    test_labels_good = numpy.zeros(1000)
+    test_arrays_good = numpy.zeros((int(sys.argv[4]), int(sys.argv[3])))
+    test_ratings_good = numpy.zeros(int(sys.argv[4]))
+    test_labels_good = numpy.zeros(int(sys.argv[4]))
 
-    test_arrays_bad = numpy.zeros((1000, int(sys.argv[3])))
-    test_ratings_bad = numpy.zeros(1000)
-    test_labels_bad = numpy.zeros(1000)
+    test_arrays_bad = numpy.zeros((int(sys.argv[4]), int(sys.argv[3])))
+    test_ratings_bad = numpy.zeros(int(sys.argv[4]))
+    test_labels_bad = numpy.zeros(int(sys.argv[4]))
 
     good_correct = 0
     good_total = 0
@@ -112,8 +113,6 @@ with open('result.csv', 'a') as f:
     tsne = TSNE(n_components=1)
     test_arrays_tsne_good = tsne.fit_transform(test_arrays_good)
     test_arrays_tsne_bad = tsne.fit_transform(test_arrays_bad)
-
-    print(test_arrays_tsne_bad[0])
 
     # plot probability of review being good vs feature vector value
     plt.scatter(test_arrays_tsne_good, classifier.predict_proba(test_arrays_good)[:,1], color='green')

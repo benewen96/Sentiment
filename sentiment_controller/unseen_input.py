@@ -32,7 +32,7 @@ model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model.d2v'))
 print("Loading data...")
 
 # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
-train_arrays = numpy.zeros((60000, 10))
+train_arrays = numpy.zeros((60000, 300))
 train_labels = numpy.zeros(60000)
 
 # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array

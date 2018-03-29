@@ -1,3 +1,7 @@
+# ARGS:
+# 1: total train reviews
+# 2: feature vector dimension
+
 # gensim modules
 from gensim import utils
 from gensim.models.doc2vec import LabeledSentence
@@ -19,6 +23,7 @@ from pymongo import MongoClient
 from datetime import datetime
 
 import os
+import sys
 
 dirname = os.path.dirname(__file__)
 
@@ -32,8 +37,8 @@ model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model.d2v'))
 classifier = LogisticRegression()
 #classifier = SGDClassifier(loss='log', penalty='l1')
 
-train_arrays = numpy.zeros((60000, 10))
-train_labels = numpy.zeros(60000)
+train_arrays = numpy.zeros((int(sys.argv[1]), int(sys.argv[2])))
+train_labels = numpy.zeros(int(sys.argv[1]))
 
 db = client.sentiment
 reviews = db.reviews
@@ -41,7 +46,7 @@ reviews = db.reviews
 def insertSource(source):
     with utils.smart_open(source) as fin:
         for item_no, line in enumerate(fin):
-            if(item_no >= 60000):
+            if(item_no >= int(sys.argv[1])):
                 break
             # our yelp reviews are in json, so we need to parse the text out
             parsed_line = json.loads(line)
@@ -81,9 +86,9 @@ def loadData() :
 
 def loadModel() :
     # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
-    for i in range(30000):
-        prefix_train_pos = 'bad_' + str(i)
-        prefix_train_neg = 'good_' + str(i)
+    for i in range((int(sys.argv[1])/2)):
+        prefix_train_pos = 'good_' + str(i)
+        prefix_train_neg = 'bad_' + str(i)
 
         pos_review = model.docvecs[prefix_train_pos]
         neg_review = model.docvecs[prefix_train_neg]
@@ -91,8 +96,8 @@ def loadModel() :
         train_arrays[i] = pos_review
         train_labels[i] = 1
 
-        train_arrays[30000 + i] = neg_review
-        train_labels[30000 + i] = 0
+        train_arrays[(int(sys.argv[1])/2) + i] = neg_review
+        train_labels[(int(sys.argv[1])/2) + i] = 0
 
     classifier.fit(train_arrays, train_labels)
     print("Loaded model!")
