@@ -21,7 +21,6 @@ const initialiseData = () => new Promise(((resolve, reject) => {
   };
 
   pyshell.on('message', (message) => {
-    // received a message sent from the Python script (a simple "print" statement)
     response.messages.push(message);
   });
 
@@ -104,7 +103,6 @@ const getReviewIds = async (filter) => {
   try {
     // check we're connected
     const database = await Database.connect();
-    // find the job based on this filter
     const docs = await database.collection('reviews')
       .find(filter)
       .sort({ date: -1 })
@@ -120,7 +118,6 @@ const getAccuracy = async () => {
   try {
     // check we're connected
     const database = await Database.connect();
-    // find the job based on this filter
     const docs = await database.collection('accuracy')
       .find();
     const doc = await docs.toArray();
@@ -147,13 +144,11 @@ const getBusiness = async (filter) => {
       if (filter.name.length <= 3) {
         return ['Too short'];
       }
-      // find the job based on this filter
       docs = await database.collection('businesses')
         .find({ name: { $regex: `.*${filter.name}.*` }, review_count: { $gt: 0 } })
         .sort({ review_count: -1 })
         .limit(limit);
     } else {
-      // find the job based on this filter
       docs = await database.collection('businesses')
         .find(filter)
         .limit(limit);
