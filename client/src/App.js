@@ -161,7 +161,7 @@ class App extends React.Component {
               <Avatar>
                 {this.renderSentiment()}
               </Avatar>
-              <ListItemText primary="Sentiment" secondary={this.state.reviewState && `${this.state.reviewState.review.sentiment}:${this.state.reviewState.review.stars}`} />
+              <ListItemText primary="Sentiment" secondary={this.state.reviewState && `${this.state.reviewState.review.sentiment}`} />
 
             </ListItem>
             <ListItem>

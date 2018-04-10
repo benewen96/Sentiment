@@ -4,42 +4,35 @@
 # 3: size of vector
 # 4: good/bad sizes
 
-# gensim modules
+# import dependencies
 from gensim import utils
 from gensim.models.doc2vec import LabeledSentence
 from gensim.models import Doc2Vec
 from matplotlib import pyplot as plt
 from sklearn.manifold import TSNE
 from sklearn.feature_extraction.text import CountVectorizer
+from pandas.plotting import parallel_coordinates
+from random import shuffle
+from sklearn.linear_model import LogisticRegression
+from yelp_labeled_line_sentence import YelpLabeledLineSentence
+from sklearn.linear_model import SGDClassifier
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
-
 import pandas as pd
-from pandas.plotting import parallel_coordinates
-
-# numpy
 import numpy
 import json
 import time
-# random
-from random import shuffle
-# classifier
-from sklearn.linear_model import LogisticRegression
-# our LabeledLineSentence class
-from yelp_labeled_line_sentence import YelpLabeledLineSentence
-
-from sklearn.linear_model import SGDClassifier
-
 import os
 import sys
 import csv
 
+# api key for plotly
 plotly.tools.set_credentials_file(username='benewen', api_key='TfY49IiC6FNVkRtl2gWV')
 
-
-
 dirname = os.path.dirname(__file__)
+
+# csv to output accuracy results
 with open('result.csv', 'a') as f:
     # load our doc2vec model that we trained
     model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model_10.d2v'))
@@ -51,7 +44,6 @@ with open('result.csv', 'a') as f:
     good = YelpLabeledLineSentence(os.path.join(dirname, '../data/review.json'), 'good', int(sys.argv[4]))
     bad = YelpLabeledLineSentence(os.path.join(dirname, '../data/review.json'), 'bad', int(sys.argv[4]))
 
-    # take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
     train_arrays = numpy.zeros((int(sys.argv[1]), int(sys.argv[3])))
     train_labels = numpy.zeros(int(sys.argv[1]))
 

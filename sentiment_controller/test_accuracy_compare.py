@@ -4,35 +4,26 @@
 # 3: size of vector
 # 4: good/bad sizes
 
-# gensim modules
+# import dependencies
 from gensim import utils
 from gensim.models.doc2vec import LabeledSentence
 from gensim.models import Doc2Vec
 from matplotlib import pyplot as plt
 from sklearn.manifold import TSNE
 from sklearn.feature_extraction.text import CountVectorizer
-
-# numpy
+from random import shuffle
+from sklearn.linear_model import LogisticRegression
+from yelp_labeled_line_sentence import YelpLabeledLineSentence
+from imdb_labeled_line_sentence import IMDBLabeledLineSentence
+from sklearn.linear_model import SGDClassifier
 import numpy
 import json
 import time
-# random
-from random import shuffle
-# classifier
-from sklearn.linear_model import LogisticRegression
-# our LabeledLineSentence class
-from yelp_labeled_line_sentence import YelpLabeledLineSentence
-from imdb_labeled_line_sentence import IMDBLabeledLineSentence
-
-
-from sklearn.linear_model import SGDClassifier
-
 import os
 import sys
 import csv
 
 dirname = os.path.dirname(__file__)
-
 
 def compute_accuracy(model, good, bad):
     # load our doc2vec model that we trained

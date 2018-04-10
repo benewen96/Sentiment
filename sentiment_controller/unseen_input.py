@@ -1,63 +1,68 @@
-# gensim modules
+# Used to get similar reviews for web application
+# ARGS:
+# 1: total train reviews
+# 2: number of iterations (for csv output)
+# 3: size of vector
+# 4: good/bad sizes
+#
+# python unseen_input.py 75000 1 400 12500
+
+# import dependencies
 from gensim import utils
 from gensim.models.doc2vec import LabeledSentence
 from gensim.models import Doc2Vec
-# numpy
+from random import shuffle
+from sklearn.linear_model import LogisticRegression
+from labeled_line_sentence import LabeledLineSentence
+from sklearn.linear_model import SGDClassifier
 import numpy
 import json
 import time
-# random
-from random import shuffle
-# classifier
-from sklearn.linear_model import LogisticRegression
-# our LabeledLineSentence class
-from labeled_line_sentence import LabeledLineSentence
-
-from sklearn.linear_model import SGDClassifier
-
 import os
+import sys
 
 print("Search driver starting...")
 
 dirname = os.path.dirname(__file__)
 
-# load our doc2vec model that we trained
-model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model.d2v'))
-
-# create an array of LabeledLineSentences for previously unseen
-# good and bad reviews
-# this does some basic formatting of the text as well to make it more
-# digestible by gensim and sklearn
+# so that we can spawn instances in node without passing args
+sys.argv = ["", 60000, 1, 10, 12500]
 
 print("Loading data...")
 
-# take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
-train_arrays = numpy.zeros((10000, 300))
-train_labels = numpy.zeros(10000)
+# load our doc2vec model that we trained
+model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model_10.d2v'))
 
-# take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
-for i in range(5000):
-    prefix_train_pos = 'bad_' + str(i)
-    prefix_train_neg = 'good_' + str(i)
-
-    pos_review = model.docvecs[prefix_train_pos]
-    neg_review = model.docvecs[prefix_train_neg]
-
-    train_arrays[i] = pos_review
-    train_labels[i] = 1
-
-    train_arrays[5000 + i] = neg_review
-    train_labels[5000 + i] = 0
-
+# declare numpy zero ([0,..,0]) arrays to store the feature vectors and classification from the model
+train_arrays = numpy.zeros((int(sys.argv[1]), int(sys.argv[3])))
+train_labels = numpy.zeros(int(sys.argv[1]))
 
 # create a logistic regression classifier
 classifier = LogisticRegression()
-#classifier = SGDClassifier(loss='log', penalty='l1')
+
+# take our train reviews from the model, and put them in array, good reviews first, bad reviews second half of array
+for i in range((int(sys.argv[1])/2)):
+    prefix_train_pos = 'good_' + str(i)
+    prefix_train_neg = 'bad_' + str(i)
+
+    # get feature vectors from the model by using our previously declared labels
+    pos_review = model.docvecs[prefix_train_pos]
+    neg_review = model.docvecs[prefix_train_neg]
+
+    # add the positive review from i=0
+    train_arrays[i] = pos_review
+    train_labels[i] = 1
+
+    # add negative review from i=total_reviews/2
+    train_arrays[(int(sys.argv[1])/2) + i] = neg_review
+    train_labels[(int(sys.argv[1])/2) + i] = 0
+
+# train the logistic regression classifier
 classifier.fit(train_arrays, train_labels)
 
 print("Ready")
 
-# try an infer sentiment of a user inputted sentence
+# try and infer sentiment from inputted text
 sentence = raw_input()
 while sentence != "":
     labeled_sentence = utils.to_unicode(sentence).split()
