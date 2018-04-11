@@ -16,9 +16,6 @@ from random import shuffle
 from sklearn.linear_model import LogisticRegression
 from yelp_labeled_line_sentence import YelpLabeledLineSentence
 from sklearn.linear_model import SGDClassifier
-import plotly
-import plotly.plotly as py
-import plotly.graph_objs as go
 import pandas as pd
 import numpy
 import json
@@ -118,10 +115,10 @@ with open('result.csv', 'a') as f:
     #     plt.xlabel('dim={}'.format(dim))
     #     plt.show()
     #
-    panda_array = pd.DataFrame(test_arrays,columns=[0,1,2,3,4,5,6,7,8,9])
-    plt.figure()
-    parallel_coordinates(panda_array)
-    plt.show()
+    # panda_array = pd.DataFrame(test_arrays,columns=[0,1,2,3,4,5,6,7,8,9])
+    # plt.figure()
+    # parallel_coordinates(panda_array)
+    # plt.show()
 
     # data = [
     #     go.Parcoords(
@@ -154,18 +151,18 @@ with open('result.csv', 'a') as f:
     # plt.scatter(test_arrays_tsne_bad[:,0], classifier.predict_proba(test_arrays_bad)[:,1], color='red')
 
 
-    # # reduce the n-dimensional feature vector to n=1 using t-SNE
-    # tsne = TSNE(n_components=1)
-    # test_arrays_tsne_good = tsne.fit_transform(test_arrays_good)
-    # test_arrays_tsne_bad = tsne.fit_transform(test_arrays_bad)
-    #
-    # # plot probability of review being good vs feature vector value
-    # plt.scatter(test_arrays_tsne_good, classifier.predict_proba(test_arrays_good)[:,1], color='green')
-    # plt.scatter(test_arrays_tsne_bad, classifier.predict_proba(test_arrays_bad)[:,1], color='red')
-    #
-    # plt.ylabel('Probability of Review Being Good')
-    # plt.xlabel('t-SNE reduced feature vector (dim=1)')
-    # plt.show()
+    # reduce the n-dimensional feature vector to n=1 using t-SNE
+    tsne = TSNE(n_components=1)
+    test_arrays_tsne_good = tsne.fit_transform(test_arrays_good)
+    test_arrays_tsne_bad = tsne.fit_transform(test_arrays_bad)
+
+    # plot probability of review being good vs feature vector value
+    plt.scatter(test_arrays_tsne_good, classifier.predict_proba(test_arrays_good)[:,1], color='green')
+    plt.scatter(test_arrays_tsne_bad, classifier.predict_proba(test_arrays_bad)[:,1], color='red')
+
+    plt.ylabel('Probability of Review Being Good')
+    plt.xlabel('t-SNE reduced feature vector (dim=1)')
+    plt.show()
 
     # # reduce the n-dimensional feature vector to n=1 using t-SNE
     # tsne = TSNE(n_components=2)
@@ -180,5 +177,5 @@ with open('result.csv', 'a') as f:
     # plt.xlabel('x2')
     # plt.show()
 
-    # writer = csv.writer(f)
-    # writer.writerow([int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),accuracy])
+    writer = csv.writer(f)
+    writer.writerow([int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),accuracy])
