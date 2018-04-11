@@ -1,6 +1,7 @@
 # ARGS:
 # 1: total train reviews
 # 2: feature vector dimension
+# 3: total reviews to insert to db
 
 # gensim modules
 from gensim import utils
@@ -30,7 +31,6 @@ dirname = os.path.dirname(__file__)
 client = MongoClient('mongodb://localhost:27017/')
 reviews_file = os.path.join(dirname, '../data/review.json')
 
-
 # load our doc2vec model that we trained
 model = Doc2Vec.load(os.path.join(dirname,'models/yelp_model.d2v'))
 # create a logistic regression classifier
@@ -46,7 +46,7 @@ reviews = db.reviews
 def insertSource(source):
     with utils.smart_open(source) as fin:
         for item_no, line in enumerate(fin):
-            if(item_no >= int(sys.argv[1])):
+            if(item_no >= int(sys.argv[3])):
                 break
             # our yelp reviews are in json, so we need to parse the text out
             parsed_line = json.loads(line)
