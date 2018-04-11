@@ -18,11 +18,15 @@ From the root of the project directory, run the following commands to install th
 
  - `npm install`
  - `cd client && npm install`
+ - `npm install -g concurrently`
 
 #### Training
 To train the model:
+ - Download the [Yelp data-set](https://www.yelp.com/dataset/download)
+ - Extract the files `business.json` and `review.json` to a new directory called `data` at the root of the project.
+ - Create an empty directory at `sentiment_controller/models` , this is where the models will be stored after training.
  - `cd sentiment_controller`
- - `python train.py 60000 1 10 yelp_model.d2v`
+ - `python train.py 60000 1 10`
 
 #### Classification
 To classify the Yelp corpus after training:

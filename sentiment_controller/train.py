@@ -48,6 +48,6 @@ model.build_vocab(reviews)
 model.train(reviews, total_examples=model.corpus_count, epochs=model.iter)
 
 # save model for future use
-model.save(os.path.join(dirname,'models/' + sys.argv[4] + 'd2v'))
+model.save(os.path.join(dirname,"models/yelp_model.d2v"))
 end = time.clock()
 print('Done, time elapsed: {}'.format(end-start))
